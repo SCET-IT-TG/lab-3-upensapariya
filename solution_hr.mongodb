@@ -1,1 +1,120 @@
+db = db.getSiblingDB("hrDB");
 
+/* ...................................
+   PART 1: CREATE (Onboard Employees)
+....................................... */
+
+// Task 1: Insert a Single Employee (Manager)
+db.employees.insertOne({
+  name: "Alice Johnson",
+  department: "Management",
+  salary: 85000,
+  position: "HR Manager",
+  experience: 10
+});
+
+// Task 2: Insert Multiple Employees (Team)
+db.employees.insertMany([
+  { name: "Bob Smith", department: "IT", salary: 60000, position: "Developer", experience: 4 },
+  { name: "Charlie Brown", department: "IT", salary: 72000, position: "Senior Developer", experience: 7 },
+  { name: "Diana Prince", department: "Marketing", salary: 45000, position: "Intern", experience: 0 }
+]);
+
+/* ..................................
+   PART 2: READ (Search Records)
+........................................*/
+
+// Task 3: View All Employees
+db.employees.find();
+
+// Task 4: Filter by Salary (> 70,000)
+db.employees.find({ salary: { $gt: 70000 } });
+
+// Task 5: Find Specific Employee (Bob Smith)
+db.employees.findOne({ name: "Bob Smith" });
+
+// Task 6: Department List Projection (IT Dept)
+db.employees.find(
+  { department: "IT" },
+  { name: 1, salary: 1, _id: 0 }
+);
+
+/* ........................................
+   PART 3: UPDATE (Promotions & Transfers)
+.......................................... */
+
+// Task 7: Salary Increment (Alice -> 90k)
+db.employees.updateOne(
+  { name: "Alice Johnson" },
+  { $set: { salary: 90000 } }
+);
+
+// Task 8: Department Restructuring (IT -> Engineering)
+// Note: This changes Bob and Charlie from 'IT' to 'Engineering'
+db.employees.updateMany(
+  { department: "IT" },
+  { $set: { department: "Engineering" } }
+);
+
+// Task 9: Correct Employee Record (Replace Diana)
+db.employees.replaceOne(
+  { name: "Diana Prince" },
+  {
+    name: "Diana Prince",
+    department: "Marketing",
+    salary: 50000,
+    position: "Associate",
+    experience: 1
+  }
+);
+
+/* .............................................
+   PART 5: ADVANCED QUERIES (Logical Operators)
+   (Executed here so data exists before deletion)
+................................................ */
+
+// Department Search ($in Management OR Engineering)
+db.employees.find({
+  department: { $in: ["Management", "Engineering"] }
+});
+
+// Experience & Salary Check ($and)
+db.employees.find({
+  $and: [
+    { experience: { $gt: 5 } },
+    { salary: { $gt: 70000 } }
+  ]
+});
+
+// Exclude Department ($ne Intern)
+db.employees.find({
+  position: { $ne: "Intern" }
+});
+
+/* .............................
+   PART 6: SORTING & LIMITING
+................................... */
+
+// Sort by Salary Descending (-1)
+db.employees.find().sort({ salary: -1 });
+
+// Top 3 Experienced Staff (Sort Exp Desc -> Limit 3)
+db.employees.find().sort({ experience: -1 }).limit(3);
+
+// Lowest Paid in Engineering
+// (Filter Engineering -> Sort Salary Asc -> Limit 1)
+db.employees.find({ department: "Engineering" }).sort({ salary: 1 }).limit(1);
+
+/* .................................
+   PART 4: DELETE (Offboarding)
+   (Executed LAST to perform cleanup)
+................................. */
+
+// Task 10: Terminate Employee (Bob Smith)
+db.employees.deleteOne({ name: "Bob Smith" });
+
+// Task 11: Clear Department (Marketing)
+db.employees.deleteMany({ department: "Marketing" });
+
+// Task 12: System Reset (Delete All)
+db.employees.deleteMany({});
